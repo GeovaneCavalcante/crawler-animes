@@ -11,6 +11,7 @@ class CrawlerAnimes(object):
     epListFrame = []
     animes = []
 
+    #Busca todos animes da pagina 1
     def getAnimes(self, url):
 
         r  = requests.get(url)
@@ -39,7 +40,10 @@ class CrawlerAnimes(object):
         
             self.animesAll[a] = anime
 
+        teste.getAnimesEpList()
 
+
+    #Busca os demais animes das paginação
     def getAnimesList(self, url):
 
         r  = requests.get(url)
@@ -51,10 +55,9 @@ class CrawlerAnimes(object):
          
             if link.get('class') != ['number']:
                 self.animes.append(link)
-         
            
-          
-    
+
+    #Busca os lista de episódios de um anime      
     def getAnimesEpList(self):
 
         a = 0
@@ -75,10 +78,9 @@ class CrawlerAnimes(object):
                 listEp.append(ep)
 
             self.animesAll[anime]['Epsodios'] = listEp
-            #print(self.animesAll[anime])  
-            #print(json.dumps(self.animesAll[anime], sort_keys=True, indent=4, separators=(',', ': ')))    
 
 
+    #Busca o poster e o link do frame do episódios
     def getAnimesEpFrame(self, link):
 
         r  = requests.get(link)
@@ -87,7 +89,6 @@ class CrawlerAnimes(object):
         ep={
             'linkFrame': soup.find_all("source")[0]['src'],
             'posterEp': soup.find_all("video")[0]['poster']
-
         }
 
         return ep
@@ -98,9 +99,7 @@ url = 'https://www.animesorion.tv/animes-dublados'
 
 teste = CrawlerAnimes()
 teste.getAnimes(url)
-teste.getAnimesEpList()
 
-#print(len(teste.animes))
 print(json.dumps(teste.animesAll, sort_keys=True, indent=4, separators=(',', ': ')))    
 
 
