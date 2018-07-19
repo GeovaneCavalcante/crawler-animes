@@ -26,12 +26,14 @@ class CrawlerAnimes(object):
         divAnimesDublados = soup.find_all("div", class_="contentBox")
 
         for link in divAnimesDublados[0].find_all('div', class_='thumb'):
+
             link1 = link.find('a')
             if link.get('class') == ['number']:
                 self.getAnimesList(link.get('href'))
             else:
                 self.animes.append(link1)   
 
+        ''' Comenta isso pra fazer uma requisição pequena'''
         for link in divAnimesDublados[0].find_all('a'):
             if link.get('class') == ['number']:
                 self.getAnimesList(link.get('href'))
