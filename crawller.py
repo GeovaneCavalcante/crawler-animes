@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup as bs
 import pprint
 import json
+from pymongo import MongoClient
 
 
 class CrawlerAnimes(object):
@@ -10,11 +11,17 @@ class CrawlerAnimes(object):
     epListDescription = []
     epListFrame = []
     animes = []
+    
+    def __init__(self):
+
+        self.conection = MongoClient()
+        self.db  = self.conection['api_animes']
+
 
     #Busca todos animes da pagina 1
     def getAnimes(self, url):
-
-        r  = requests.get(url)
+        
+        r  = requests.get(url)  
         soup = bs(r.content, 'html.parser')
         divAnimesDublados = soup.find_all("div", class_="contentBox")
 
@@ -23,7 +30,7 @@ class CrawlerAnimes(object):
             if link.get('class') == ['number']:
                 self.getAnimesList(link.get('href'))
             else:
-                self.animes.append(link1)
+                self.animes.append(link1)   
 
         for link in divAnimesDublados[0].find_all('a'):
             if link.get('class') == ['number']:
@@ -36,8 +43,9 @@ class CrawlerAnimes(object):
             anime['title'] = ani['title']
             anime['linkEpDescription'] = ani['href']
             anime['imgAnime'] = ani.find_all('img')[0]['src']
-
+            ##print(json.dumps(anime, sort_keys=True, indent=4, separators=(',', ': ')))
             self.animesAll[a] = anime
+     
 
 
     #Busca os demais animes das paginação
@@ -73,7 +81,7 @@ class CrawlerAnimes(object):
                 ep['frame'] = self.getAnimesEpFrame(li.get('href'))
                 ep['titleEp'] = li.get('title')
                 listEp.append(ep)
-
+          
             self.animesAll[anime]['Epsodios'] = listEp
         
         
@@ -91,11 +99,25 @@ class CrawlerAnimes(object):
         return ep
 
 
+    def insertAnimes(self):
+
+        for anime in self.animesAll:
+            self.db.animes.insert_one(self.animesAll[anime]).inserted_id
+
+
+    def printJson(self):
+
+        for x in self.db.animes.find():
+            pprint.pprint(x)
+
 # Epsódio list
 url = 'https://www.animesorion.tv/animes-dublados'
 
 teste = CrawlerAnimes()
 teste.getAnimes(url)
 teste.getAnimesEpList()
+teste.insertAnimes()
+##teste.printJson()
 
-print(json.dumps(teste.animesAll, sort_keys=True, indent=4, separators=(',', ': ')))
+##print(json.dumps(teste.animesAll, sort_keys=True, indent=4, separators=(',', ': ')))
+#
