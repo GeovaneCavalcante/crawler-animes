@@ -33,10 +33,11 @@ class CrawlerAnimes(object):
             else:
                 self.animes.append(link1)   
 
-        ''' Comenta isso pra fazer uma requisição pequena'''
+        ''' Comenta isso pra fazer uma requisição pequena
         for link in divAnimesDublados[0].find_all('a'):
             if link.get('class') == ['number']:
                 self.getAnimesList(link.get('href'))
+        '''        
 
         a = 1
         for ani in self.animes:
@@ -76,16 +77,20 @@ class CrawlerAnimes(object):
 
             ul = soup.find_all("ul", id="lcp_instance_0")
 
+            sinopse = soup.find("div", class_="sinopse")
+            self.animesAll[anime]['sinopse'] = sinopse.text
+            
             listEp = []
 
             for li in ul[0].find_all('a'):
                 ep = {}
                 ep['frame'] = self.getAnimesEpFrame(li.get('href'))
                 ep['titleEp'] = li.get('title')
+                
                 listEp.append(ep)
           
             self.animesAll[anime]['Epsodios'] = listEp
-        
+            print(json.dumps(self.animesAll[anime], sort_keys=True, indent=4, separators=(',', ': ')))
         
     #Busca o poster e o link do frame do episódios
     def getAnimesEpFrame(self, link):
